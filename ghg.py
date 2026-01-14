@@ -54,8 +54,10 @@ def area(rect : GlobeRect) -> float:
 
 #header:
 #returns an float equal to the emmisions of a region in tons of Co2 per square kilometer.
-def emissions_per_square_km():
-  pass
+def emissions_per_square_km(region_area : RegionCondition)-> float:
+    area_of_region : float = area(region_area.region.rect)
+    return region_area.ghg_rate/area_of_region
+  
 
 class Tests(unittest.TestCase):
   # Put your test cases in here.
@@ -70,7 +72,11 @@ class Tests(unittest.TestCase):
     self.assertAlmostEqual(area(GlobeRect(66.5,90,-179.9999,180)), 21152348.803840335, delta=1e-9)
     self.assertAlmostEqual(area(GlobeRect(0,1,0,180)), 2225463.118247001, delta=1e-9)
   def test_emissions_per_square_km(self):
-    #self.assertAlmostEqual()
+    self.assertAlmostEqual(emissions_per_square_km(example_region_conditions[0]),29655.800092,delta=1e-7)
+    self.assertAlmostEqual(emissions_per_square_km(example_region_conditions[1]),2798.41544027,delta=1e-7)
+    self.assertAlmostEqual(emissions_per_square_km(example_region_conditions[2]),6.49493116779,delta=1e-7)
+    self.assertAlmostEqual(emissions_per_square_km(example_region_conditions[3]),33.0743284426,delta=1e-7)
+
 # Remember from Lab 1: this if statements checks
 # whether this module (ghg.py) is the module
 # being executed or whether it's just being
