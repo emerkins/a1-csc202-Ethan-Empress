@@ -5,7 +5,7 @@ import math
 import sys
 sys.setrecursionlimit(10**6)
 
-calpoly_email_addresses = ["eiming@calpoly.edu","_@calpoly.edu"]
+calpoly_email_addresses = ["eiming@calpoly.edu","ejow@calpoly.edu"]
 
 # Your data definitions and functions go here.
 @dataclass( frozen = True )
@@ -43,6 +43,17 @@ def emmisions_per_capita(place : RegionCondition) -> float:
     print(f"Population is must be greater than 0.")
     return 0
 
+#header:
+#returns an integer equal to the area of a GlobeRect Object.
+def area(rect : GlobeRect) -> float:
+  EarthArea : float = (6371*6371*math.pi)
+  width : float = rect.east_long-rect.west_long
+  print (f"width: ", width)
+  heightArea : float = (2*(EarthArea)*((1-math.cos(rect.hi_lat)-(1-math.cos(rect.lo_lat)))))
+  print(f"heightArea: ", heightArea)
+  area_sect : float = heightArea*(width/360)
+  print(area_sect)
+  pass
 
 class Tests(unittest.TestCase):
   # Put your test cases in here.
@@ -51,6 +62,8 @@ class Tests(unittest.TestCase):
     self.assertAlmostEqual(emmisions_per_capita(RegionCondition( Region( GlobeRect ( -10, 5,  150, 160), "Western Pacific Ocean", "Ocean"), 2020, 9700000, 12000000)), 1.237113402, delta=1e-9)
     self.assertEqual(emmisions_per_capita(RegionCondition( Region( GlobeRect ( 33.60, 34.35,  -118.90, -117.65), "Los Angeles", "Other"), 2021, 0, 26900000)), None)
     self.assertAlmostEqual(emmisions_per_capita(RegionCondition( Region( GlobeRect ( 40.45, 41.05,  -74.45, -73.55), "New York City", "Other"), 2022, 19000000, 150000000)), 7.894736842, delta=1e-9)
+  def test_area(self):
+    self.assertAlmostEqual(area(GlobeRect(0.0,10.0,10.0,100.0)), 900.0, delta=1e-9)
 # Remember from Lab 1: this if statements checks
 # whether this module (ghg.py) is the module
 # being executed or whether it's just being
