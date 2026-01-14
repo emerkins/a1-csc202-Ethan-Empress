@@ -50,6 +50,7 @@ def area(rect : GlobeRect) -> float:
   width : float = rect.east_long-rect.west_long
   heightArea : float = 2*EarthArea*(math.sin(math.radians(rect.hi_lat))-math.sin(math.radians(rect.lo_lat)))
   area_sect : float = heightArea*(width/360)
+  print (area_sect)
   return area_sect
 
 class Tests(unittest.TestCase):
@@ -61,6 +62,9 @@ class Tests(unittest.TestCase):
     self.assertAlmostEqual(emmisions_per_capita(RegionCondition( Region( GlobeRect ( 40.45, 41.05,  -74.45, -73.55), "New York City", "Other"), 2022, 19000000, 150000000)), 7.894736842, delta=1e-9)
   def test_area(self):
     self.assertAlmostEqual(area(GlobeRect(0.0,10.0,10.0,100.0)), 11071470.754972488, delta=1e-9)
+    self.assertAlmostEqual(area(GlobeRect(0.0,90,0,90)), 63758058.98872353, delta=1e-9)
+    self.assertAlmostEqual(area(GlobeRect(66.5,90,-179.9999,180)), 21152348.803840335, delta=1e-9)
+    self.assertAlmostEqual(area(GlobeRect(0,1,0,180)), 2225463.118247001, delta=1e-9)
 # Remember from Lab 1: this if statements checks
 # whether this module (ghg.py) is the module
 # being executed or whether it's just being
