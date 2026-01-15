@@ -28,7 +28,7 @@ class RegionCondition:
   pop : int
   ghg_rate : float # Emissions in tons of Co2 equivalent per year
   
-example_region_conditions : List[RegionCondition] = [RegionCondition( Region( GlobeRect ( 40.45, 41.05,  -74.45, -73.55), "New York City", "Other"), 2022, 19000000, 150000000), 
+example_region_conditions : List[RegionCondition] = [RegionCondition( Region( GlobeRect ( 40.45, 41.05,  -74.45, -73.55 ), "New York City", "Other"), 2022, 19000000, 150000000), 
   RegionCondition( Region( GlobeRect ( 33.60, 34.35,  -118.90, -117.65), "Los Angeles", "Other"), 2021, 12990000, 26900000),
   RegionCondition( Region( GlobeRect ( -10, 5,  150, 160), "Western Pacific Ocean", "Ocean"), 2020, 9700000, 12000000),
   RegionCondition( Region( GlobeRect ( 34.8, 36,  -122, -119.5), "Cal Poly SLO", "Mountains"), 2020, 282000, 1000000)]
@@ -67,6 +67,68 @@ def densest( regions : List[RegionCondition] ) -> str:
       name = i.region.name
   return name
 
+# Returns a new RegionCondition object that estimates the condition of the region after a certain number of years has passed
+def project_condition( place : RegionCondition, years_passed : int ) -> RegionCondition:
+  if place.region.terrain == "Ocean":
+    return project_condition_ocean( place, years_passed)
+  elif place.region.terrain == "Mountains":
+    return project_condition_mountain( place, years_passed)
+  elif place.region.terrain == "Forrest":
+    return project_condition_forrest( place, years_passed)
+  elif place.region.terrain == "Other":
+    return project_condition_other( place, years_passed)
+  
+
+# Returns a new RegionCondition object that estimates the condition of the ocean region after a certain number of years has passed
+def project_condition_ocean( place : RegionCondition, years_passed : int ) -> RegionCondition:
+  new_pop : int = place.pop 
+  new_ghg : float = place.ghg_rate
+  for i in range( years_passed ):
+   new_pop += round(new_pop * 0.0001)
+  new_conditions : RegionCondition = replace( place, place.year + years_passed, new_pop, place.ghg_rate)
+  new_ghg = new_ghg + emmisions_per_capita( new_conditions )
+  new_conditions = replace( place, place.year + years_passed, new_pop, new_ghg)
+  return new_conditions
+
+# Returns a new RegionCondition object that estimates the condition of the mountain region after a certain number of years has passed
+def project_condition_mountain( place : RegionCondition, years_passed : int ) -> RegionCondition:
+  new_pop : int = place.pop 
+  new_ghg : float = place.ghg_rate
+  for i in range ( years_passed ):
+   new_pop += round(new_pop * 0.0005)
+  new_conditions : RegionCondition = replace( place, place.year + years_passed, new_pop, place.ghg_rate)
+  new_ghg = new_ghg + emmisions_per_capita( new_conditions )
+  new_conditions = replace( place, place.year + years_passed, new_pop, new_ghg)
+  return new_conditions
+
+# Returns a new RegionCondition object that estimates the condition of the forrest region after a certain number of years has passed
+def project_condition_forrest( place : RegionCondition, years_passed : int ) -> RegionCondition:
+  new_pop : int = place.pop 
+  new_ghg : float = place.ghg_rate
+  for i in range ( years_passed ):
+   new_pop += round(new_pop * 0.00001)
+  new_conditions : RegionCondition = replace( place, place.year + years_passed, new_pop, place.ghg_rate)
+  new_ghg = new_ghg + emmisions_per_capita( new_conditions )
+  new_conditions = replace( place, place.year + years_passed, new_pop, new_ghg)
+  return new_conditions
+
+# Returns a new RegionCondition object that estimates the condition of the "other" region after a certain number of years has passed
+def project_condition_other( place : RegionCondition, years_passed : int ) -> RegionCondition:
+  new_pop : int = place.pop 
+  new_ghg : float = place.ghg_rate
+  for i in range ( years_passed ):
+   new_pop += round(new_pop * 0.00003)
+  new_conditions : RegionCondition = replace( place, place.year + years_passed, new_pop, place.ghg_rate)
+  new_ghg = new_ghg + emmisions_per_capita( new_conditions )
+  new_conditions = replace( place, place.year + years_passed, new_pop, new_ghg)
+  return new_conditions
+
+
+
+# Returns a new RegionCondition object with a new year, population, and emissions
+def replace( place : RegionCondition, year : int, pop : int, ghg : float ) -> RegionCondition:
+  new_conditions : RegionCondition = RegionCondition( Region( GlobeRect( place.region.rect.lo_lat, place.region.rect.hi_lat, place.region.rect.west_long, place.region.rect.east_long ), place.region.name, place.region.terrain ), year, pop, ghg )
+  return new_conditions
 
 class Tests(unittest.TestCase):
   # Put your test cases in here.
@@ -92,6 +154,12 @@ class Tests(unittest.TestCase):
     self.assertEqual( densest( example_region_conditions ), "New York City")
     self.assertEqual( densest( [RegionCondition( Region( GlobeRect ( 33.60, 34.35,  -118.90, -117.65 ), "Los Angeles", "Other" ), 2021, 12990000, 26900000 ),
       RegionCondition( Region( GlobeRect ( -10, 5,  150, 160 ), "Western Pacific Ocean", "Ocean" ), 2020, 9700000, 12000000 ) ] ), "Los Angeles" )
+    
+  def test_project_conditions(self):
+    self.assertEqual( project_condition( example_region_conditions[0], 1), RegionCondition( Region( GlobeRect ( 40.45, 41.05,  -74.45, -73.55), "New York City", "Other"), 2023, 19000570, 15000007.894) )
+    self.assertEqual( project_condition( example_region_conditions[2], 2), RegionCondition( Region( GlobeRect ( -10, 5,  150, 160), "Western Pacific Ocean", "Ocean"), 2022, 9701940, 12000001.237) )
+    self.assertEqual( project_condition( RegionCondition( Region( GlobeRect ( 34.8, 36,  -122, -119.5), "Cal Poly SLO", "Forrest"), 2020, 282000, 1000000) , 2), RegionCondition( Region( GlobeRect ( 34.8, 36,  -122, -119.5), "Cal Poly SLO", "Forrest"), 2022, 282006, 1000003.546) )
+    self.assertEqual( project_condition( example_region_conditions[3], 1), RegionCondition( Region( GlobeRect ( 34.8, 36,  -122, -119.5), "Cal Poly SLO", "Mountains"), 2021, 282141, 1000003.544) )
 
 
 # Remember from Lab 1: this if statements checks
