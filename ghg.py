@@ -42,7 +42,7 @@ def emmisions_per_capita(place : RegionCondition) -> float:
     print(f"Population is must be greater than 0.")
     return 0
 
-#returns an the area of certain rectangular region
+#returns an area of certain rectangular region
 def area(rect : GlobeRect) -> float:
   EarthArea : float = (6371*6371*math.pi)
   width : float = abs(rect.east_long-rect.west_long)
